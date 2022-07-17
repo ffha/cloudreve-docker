@@ -5,4 +5,6 @@ RUN npm install -g yarn
 RUN git clone --recurse-submodules https://github.com/cloudreve/Cloudreve.git .
 RUN git checkout 3.5.3
 WORKDIR /usr/src/assets
-RUN yarn install
+RUN yarn
+RUN yarn build
+WORKDIR /usr/src
