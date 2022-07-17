@@ -12,5 +12,8 @@ RUN yarn build
 WORKDIR /usr/src
 RUN go build -a -o cloudreve -ldflags "-s -w -X 'github.com/cloudreve/Cloudreve/v3/pkg/conf.BackendVersion=$VERSION' -X 'github.com/cloudreve/Cloudreve/v3/pkg/conf.LastCommit=$COMMIT_SHA'"
 FROM alpine as runner
+RUN apk add tini
 WORKDIR /app
 COPY --from=builder /usr/src/cloudreve /app/cloudreve
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD /app/cloudreve
