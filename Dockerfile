@@ -1,20 +1,8 @@
-FROM golang:alpine as builder
-WORKDIR /usr/src
-RUN apk add git build-base make nodejs npm zip
-RUN npm install -g yarn
-RUN git clone --recurse-submodules https://github.com/cloudreve/Cloudreve.git .
-RUN git checkout 3.5.3
-ARG VERSION=$(git describe --tags)
-ARG COMMIT_SHA=$(git rev-parse --short HEAD)
-WORKDIR /usr/src/assets
-RUN yarn
-RUN yarn build
-WORKDIR /usr/src
-RUN go build -a -o cloudreve -ldflags "-s -w -X 'github.com/cloudreve/Cloudreve/v3/pkg/conf.BackendVersion=$VERSION' -X 'github.com/cloudreve/Cloudreve/v3/pkg/conf.LastCommit=$COMMIT_SHA'"
-FROM alpine as runner
-LABEL org.opencontainers.image.description Cloudreve-on-docker
-RUN apk add tini
+FROM debian:stable-slim
 WORKDIR /app
-COPY --from=builder /usr/src/cloudreve /app/cloudreve
-ENTRYPOINT ["/sbin/tini", "--"]
+RUN apt-get update && apt-get install -y wget tar
+RUN wget https://github.com/cloudreve/Cloudreve/releases/download/3.5.3/cloudreve_3.5.3_linux_amd64.tar.gz
+RUN tar zxvf cloudreve_3.5.3_linux_amd64.tar.gz
+RUN chmod +x ./cloudreve
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD /app/cloudreve
