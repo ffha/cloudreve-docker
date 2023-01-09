@@ -4,8 +4,9 @@
 FROM node:16-alpine as cloudreve_frontend_builder
 
 RUN apk update \
-    && apk add --no-cache wget curl git yarn zip bash \
-    && git clone --recurse-submodules https://github.com/cloudreve/Cloudreve.git /cloudreve_frontend
+    && apk add --no-cache wget curl git zip bash \
+    && git clone --recurse-submodules https://github.com/cloudreve/Cloudreve.git /cloudreve_frontend \
+    && git checkout 3.6.2
 
 # build frontend assets using build script, make sure all the steps just follow the regular release
 WORKDIR /cloudreve_frontend
@@ -22,7 +23,8 @@ RUN apk update \
     # install dependencies and build tools
     && apk add --no-cache wget curl git clang15 llvm15 build-base gcc abuild binutils binutils-doc gcc-doc zip bash \
     && ln -sf /usr/bin/lld /usr/bin/ld \
-    && git clone --recurse-submodules https://github.com/cloudreve/Cloudreve.git /cloudreve_backend
+    && git clone --recurse-submodules https://github.com/cloudreve/Cloudreve.git /cloudreve_backend \
+    && git checkout 3.6.2
 ENV CC=clang AR=llvm-ar CXX=clang++
 WORKDIR /cloudreve_backend
 COPY --from=cloudreve_frontend_builder /cloudreve_frontend/assets.zip ./
